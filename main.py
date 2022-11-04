@@ -4,14 +4,15 @@ UnLiteFlowNet-PIV
 
 """
 import argparse
-import matplotlib.pyplot as plt
+import imageio
+from progress.bar import Bar
 from src.model.models import *
 from src.data_processing.read_data import *
 from src.train.train_functions import *
+from src.inference.inference import *
 
 data_path = "./sample_data"
 result_path = "./output"
-
 
 def test_train():
     # Read data
@@ -19,7 +20,6 @@ def test_train():
     flow_img1_name_list, flow_img2_name_list, flow_gt_name_list, flow_dir = read_by_type(
         data_path)
 
-    print([f_dir for f_dir in flow_dir])
     img1_len = [len(f_dir) for f_dir in flow_img1_name_list]
     img2_len = [len(f_dir) for f_dir in flow_img2_name_list]
     gt_len = [len(f_dir) for f_dir in flow_gt_name_list]
@@ -77,8 +77,7 @@ def test_train():
     return model_trained
 
 
-def test_estimate():
-
+def test_estimate(flow_type,fps):
     flow_img1_name_list, flow_img2_name_list, flow_gt_name_list, flow_dir = read_by_type(
         data_path)
     assert len(flow_dir) == len(flow_img1_name_list)
@@ -91,110 +90,59 @@ def test_estimate():
             targets_index_list=total_index,
             targets=flow_gt_name_list[i])
 
-    flow_type = [f_dir for f_dir in flow_dir]
     print("Flow cases: ", flow_type)
 
-    # Load pretrained model
-    model_save_name = 'UnsupervisedLiteFlowNet_pretrained.pt'
-    PATH = F"./models/{model_save_name}"
-    unliteflownet = Network()
-    unliteflownet.load_state_dict(torch.load(PATH)['model_state_dict'])
-    unliteflownet.eval()
-    unliteflownet.to(device)
-    print('unliteflownet load successfully.')
-
     # Visualize results, random select a flow type
-    f_type = random.randint(0, len(flow_type) - 1)
-    print("Selected flow scenario: ", flow_type[f_type])
-    test_dataset = flow_dataset[flow_type[f_type]]
+    #f_type = random.randint(0, len(flow_type) - 1)
+    print("Selected flow scenario: ", flow_type)
+    test_dataset = flow_dataset[flow_type]
     test_dataset.eval()
-
-    resize = False
-    save_to_disk = False
-
-    # random select a sample
-    number_total = len(test_dataset)
-    number = random.randint(0, number_total - 1)
-    input_data, label_data = test_dataset[number]
-    h_origin, w_origin = input_data.shape[-2], input_data.shape[-1]
-
-    if resize:
-        input_data = F.interpolate(input_data.view(-1, 2, h_origin, w_origin),
-                                   (256, 256),
-                                   mode='bilinear',
-                                   align_corners=False)
-    else:
-        input_data = input_data.view(-1, 2, 256, 256)
-
-    h, w = input_data.shape[-2], input_data.shape[-1]
-    x1 = input_data[:, 0, ...].view(-1, 1, h, w)
-    x2 = input_data[:, 1, ...].view(-1, 1, h, w)
-
-    # Visualization
-    fig, axarr = plt.subplots(1, 2, figsize=(16, 8))
-
     # ------------Unliteflownet estimation-----------
-    b, _, h, w = input_data.size()
-    y_pre = estimate(x1.to(device), x2.to(device), unliteflownet, train=False)
-    y_pre = F.interpolate(y_pre, (h, w), mode='bilinear', align_corners=False)
+    number_total = len(test_dataset)
+    bar = Bar('Processing', max=number_total)
+    unliteflownet = initializeNN()
+    for number in range(0,number_total):
+        input_data, label_data = test_dataset[number]
+        runInference(unliteflownet=unliteflownet, input_data=input_data,label_data=label_data,number=number,resize=True,save_to_disk=True, show=False)
+        bar.next()
+    bar.finish()
+    print("Done")
 
-    resize_ratio_u = h_origin / h
-    resize_ratio_v = w_origin / w
-    u = y_pre[0][0].detach() * resize_ratio_u
-    v = y_pre[0][1].detach() * resize_ratio_v
+    # Create Video
+    isVideo = True
 
-    color_data_pre = np.concatenate((u.view(h, w, 1), v.view(h, w, 1)), 2)
-    u = u.numpy()
-    v = v.numpy()
-    # Draw velocity magnitude
-    axarr[1].imshow(fz.convert_from_flow(color_data_pre))
-    # Control arrow density
-    X = np.arange(0, h, 8)
-    Y = np.arange(0, w, 8)
-    xx, yy = np.meshgrid(X, Y)
-    U = u[xx.T, yy.T]
-    V = v[xx.T, yy.T]
-    # Draw velocity direction
-    axarr[1].quiver(yy.T, xx.T, U, -V)
-    axarr[1].axis('off')
-    color_data_pre_unliteflownet = color_data_pre
+    images = []
+    if isVideo:
+        print("Collecting Image Flows...")
+        images = []
+        for f in  sorted(glob.iglob(f'{result_path}/*.png')):
+            images.append(imageio.imread(f))
 
-    # ---------------Label data------------------
-    u = label_data[0].detach()
-    v = label_data[1].detach()
+        print("Saving Video with " + str(len(images)) + " images...This may take a while. Please wait.")
+        imageio.mimsave(result_path + '/movie.gif', images, format='GIF', fps=fps)
 
-    color_data_label = np.concatenate((u.view(h, w, 1), v.view(h, w, 1)), 2)
-    u = u.numpy()
-    v = v.numpy()
-    # Draw velocity magnitude
-    axarr[0].imshow(fz.convert_from_flow(color_data_label))
-    # Control arrow density
-    X = np.arange(0, h, 8)
-    Y = np.arange(0, w, 8)
-    xx, yy = np.meshgrid(X, Y)
-    U = u[xx.T, yy.T]
-    V = v[xx.T, yy.T]
-
-    # Draw velocity direction
-    axarr[0].quiver(yy.T, xx.T, U, -V)
-    axarr[0].axis('off')
-    color_data_pre_label = color_data_pre
-
-    if save_to_disk:
-        fig.savefig('./output/frame_%d.png' % number, bbox_inches='tight')
-        plt.close()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train and test')
     parser.add_argument('--train', action='store_true', help='train the model')
     parser.add_argument('--test', action='store_true', help='train the model')
+    parser.add_argument('--flow' , help='train the model')
+    parser.add_argument('--fps' , help='train the model')
 
     args = parser.parse_args()
     isTrain = args.train
     isTest = args.test
+    flow_type = args.flow
+    fps = args.fps
 
     if isTrain:
         test_train()
     if isTest:
-        test_estimate()
+        if fps is None:
+            fps = 10 # Default
+            print("Using default FPS of " + str(fps))
+        else:
+            print("User selected FPS of " + str(fps))
+        
+        test_estimate(flow_type=flow_type,fps=fps)

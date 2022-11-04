@@ -14,7 +14,6 @@ def read_all(data_path):
         gt_name_list = json.load(open(data_path + "/gt_name_list.json", 'r'))
     except:
         data_dir = glob.glob(data_path + "/*")
-        print(data_dir)
         gt_name_list = []
         img1_name_list = []
         img2_name_list = []
@@ -73,9 +72,9 @@ def read_by_type(data_path):
             sub_flow_gt_name_list.extend(glob.glob(dir + '/*flow.flo'))
             sub_flow_img1_name_list.extend(glob.glob(dir + '/*img1.tif'))
             sub_flow_img2_name_list.extend(glob.glob(dir + '/*img2.tif'))
-            assert (len(sub_flow_gt_name_list) == len(sub_flow_img1_name_list))
-            assert (
-                len(sub_flow_img2_name_list) == len(sub_flow_img1_name_list))
+            #assert (len(sub_flow_gt_name_list) == len(sub_flow_img1_name_list))
+            #assert (
+            #    len(sub_flow_img2_name_list) == len(sub_flow_img1_name_list))
             sub_flow_gt_name_list.sort()
             sub_flow_img1_name_list.sort()
             sub_flow_img2_name_list.sort()
