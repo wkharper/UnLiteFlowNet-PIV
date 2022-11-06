@@ -33,7 +33,7 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
     x2 = input_data[:, 1, ...].view(-1, 1, h, w)
 
     # Visualization
-    fig, axarr = plt.subplots(1, 2, figsize=(256/(2*arrow_density), 256/(2*arrow_density)))
+    fig, axarr = plt.subplots(1, 2, figsize=(16,16))
 
     # Estimate
     b, _, h, w = input_data.size()
