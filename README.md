@@ -84,7 +84,7 @@ Test and visualize the sample data results with the pretrained model using:
 
 Where `name_of_flow` is the name of the flow folders in the `sample_data` directory.
 
-Note that --arrow should be set between `1` and `256`. Setting lower values results in longer processing times, but greater fidelity of flow visualization.
+Note that --arrow should be set between `1` (1 on arrow for every pixel) and `256` (1 arrow for every 256 pixels). Setting lower values results in longer processing times, but greater fidelity of flow field arrows visualization. Typical values are `4` to `32`.
 
 The current implementation saves the output ground truth (if available) and UnLiteFlowNet-PIV output into the `output` directory. This directory contains an animated gif `movie.gif` that contains the flow field visualization.
 
