@@ -50,28 +50,14 @@ Dense motion estimation of particle images via a convolutional neural network, E
 Y. Li, E. Perlman, M. Wan, Y. Yang, R. Burns, C. Meneveau, R. Burns, S. Chen, A. Szalay & G. Eyink. 
 A public turbulence database cluster and applications to study Lagrangian evolution of velocity increments in turbulence. Journal of Turbulence 9, No. 31, 2008.
 ```
+## Build and run docker container
+Build the image: `docker build . -t flownet:test`
 
-## Prerequisite
+Allow docker to access XServer: `xhost +local:docker`
 
-- cuda (v10.1)
+Start the container: `sudo docker run --privileged --cpus 8 --gpus all -e DISPLAY=$DISPLAY --net=host -v /tmp/.X11-unix:/tmp/.X11-unix -it --mount type=bind,source="$(pwd)"/,target=/opt/flownet flownet:test /bin/bash`
 
-- pytorch (v1.5.0)
-
-- sklearn (v0.22.2)
-
-- livelossplot
-
-  ```pip install livelossplot```
-
-- flowiz
-
-  Library to visualize .flo files
-  
-  ```pip install flowiz -U```
-  
-- GPUtil
-
-  ```pip install GPUtil```
+Ensure you have the most up to date `nvidia-docker2` package and `nvidia-driver-XXX` packages installed on your PC.
 
 ## Training
 To train from scratch:
@@ -88,11 +74,19 @@ To train from scratch:
 The trained model ```UnsupervisedLiteFlowNet_pretrained.pt``` is available in the folder ```models```.
 
 ## Testing
-The data samples for test use are in the folder ```sample_data```.
+If using docker, navigate to the working directory: `cd /opt/flownet`
+
+The data samples for test use are in the folder ```sample_data```. To access full datasets see [here](), Untar the contents from the root of the project `tar -xzvhf piv_datasets.tar.gz`
 
 Test and visualize the sample data results with the pretrained model using:
 
-```python main.py --test```
+```python main.py --test --flow *name_of_flow* --fps *desired_fps_of_video*```
+
+Where `name_of_flow` is the name of the flow folders in the `sample_data` directory.
+
+The current implementation saves the output ground truth (if available) and UnLiteFlowNet-PIV output into the `output` directory. This directory contains an animated gif `movie.gif` that contains the flow field visualization.
+
+It is recommended to clear your workspace every time you run the code by using `./clean.sh`.
 
 
 ## Citation

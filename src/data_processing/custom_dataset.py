@@ -23,6 +23,9 @@ class FlowDataset(torch.utils.data.Dataset):
             targets: A list of test image path
             train: True train mode, false eval mode (print data path)
         """
+        if len(targets) == 0:
+            targets = None
+
         self.data_index_list = data_index_list
         self.data = data
         self.targets_index_list = targets_index_list
@@ -47,12 +50,13 @@ class FlowDataset(torch.utils.data.Dataset):
             self.data[1][sample_ind])) * 1.0 / 255.0
 
         if not self.train:
-            print(' ')
-            print('img1: ', self.data[0][sample_ind])
-            print('img2: ', self.data[1][sample_ind])
-            if self.targets is not None:
-                print('label: ', self.targets[sample_ind])
-            print(' ')
+            pass
+           # print(' ')
+           # print('img1: ', self.data[0][sample_ind])
+           # print('img2: ', self.data[1][sample_ind])
+            #if self.targets is not None:
+            #    print('label: ', self.targets[sample_ind])
+            #print(' ')
 
         sample = torch.FloatTensor([sample_1, sample_2])
         # read_flow convert the RGB value in .flo to velocity components u and v
@@ -60,4 +64,4 @@ class FlowDataset(torch.utils.data.Dataset):
             label = fz.read_flow(self.targets[label_ind])
             label = torch.FloatTensor([label[..., 0], label[..., 1]])
             return sample, label
-        return sample, _
+        return sample,None
