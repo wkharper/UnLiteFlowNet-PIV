@@ -36,8 +36,8 @@ def test_train():
     lr = 1e-4
     batch_size = 16
     test_batch_size = 16
-    n_epochs = 100
-    new_train = True
+    n_epochs = 1000
+    new_train = False
 
     # Load the network model
     model = Network().to(device)
