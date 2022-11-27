@@ -20,22 +20,22 @@ def test_train():
     flow_img1_name_list, flow_img2_name_list, flow_gt_name_list, flow_dir = read_by_type(
         data_path)
 
-    img1_len = [len(f_dir) for f_dir in flow_img1_name_list]
-    img2_len = [len(f_dir) for f_dir in flow_img2_name_list]
-    gt_len = [len(f_dir) for f_dir in flow_gt_name_list]
+    #img1_len = [len(f_dir) for f_dir in flow_img1_name_list]
+    #img2_len = [len(f_dir) for f_dir in flow_img2_name_list]
+    #gt_len = [len(f_dir) for f_dir in flow_gt_name_list]
 
-    for img1_num, img2_num in zip(img1_len, img2_len):
-        assert img1_num == img2_num
-    for img1_num, gt_num in zip(img1_len, gt_len):
-        assert img1_num == gt_num
+    #for img1_num, img2_num in zip(img1_len, img2_len):
+    #    assert img1_num == img2_num
+    #for img1_num, gt_num in zip(img1_len, gt_len):
+    #    assert img1_num == gt_num
 
     train_dataset, validate_dataset, test_dataset = construct_dataset(
         img1_name_list, img2_name_list, gt_name_list)
 
     # Set hyperparameters
     lr = 1e-4
-    batch_size = 8
-    test_batch_size = 8
+    batch_size = 16
+    test_batch_size = 16
     n_epochs = 100
     new_train = True
 
