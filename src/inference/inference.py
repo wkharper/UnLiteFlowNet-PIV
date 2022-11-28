@@ -51,6 +51,7 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
     flow_field_norm = np.stack((u,v),axis=2)
     # Draw velocity magnitude
     axarr[1].imshow(fz.convert_from_flow(color_data_pre))
+    axarr[1].imshow(x1.numpy()[0,0,...],alpha=0.35)
     # Control arrow density
     X = np.arange(0, h, arrow_density)
     Y = np.arange(0, w, arrow_density)
@@ -73,6 +74,7 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
         flow_field_norm_gt = np.stack((u_gt,v_gt),axis=2)
         # Draw velocity magnitude
         axarr[0].imshow(fz.convert_from_flow(color_data_label_gt))
+        axarr[1].imshow(x1.numpy()[0,0,...],alpha=0.35)
         # Control arrow density
         X_gt = np.arange(0, h, arrow_density)
         Y_gt = np.arange(0, w, arrow_density)
