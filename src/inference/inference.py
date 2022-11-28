@@ -19,14 +19,15 @@ def initializeNN():
 
 def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow_density=8, resize=False, save_to_disk=False, show=True):
     h_origin, w_origin = input_data.shape[-2], input_data.shape[-1]
-
     if resize:
+        print(h_origin)
+        print(w_origin)
         input_data = F.interpolate(input_data.view(-1, 2, h_origin, w_origin),
-                                   (256, 256),
+                                   (256,256),
                                    mode='bilinear',
                                    align_corners=False)
     else:
-        input_data = input_data.view(-1, 2, 256, 256)
+        input_data = input_data.view(-1, 2, h_origin, w_origin)
 
     h, w = input_data.shape[-2], input_data.shape[-1]
     x1 = input_data[:, 0, ...].view(-1, 1, h, w)
@@ -98,9 +99,9 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
         fig.savefig('./output/frame_' + str(number).zfill(4) + '.png', bbox_inches='tight')
         plt.close()
         reshaped_ffn = flow_field_norm.reshape(flow_field_norm.shape[0], -1)
-        reshaped_ffn_gt = flow_field_norm.reshape(flow_field_norm_gt.shape[0], -1)
         np.savetxt("./output/uv_" + str(number).zfill(4) + ".txt", reshaped_ffn, '%.4f')
         if label_data is not None:
+            reshaped_ffn_gt = flow_field_norm.reshape(flow_field_norm_gt.shape[0], -1)
             np.savetxt("./output/uv_gt_" + str(number).zfill(4) + ".txt", reshaped_ffn_gt, '%.4f')
 
     

@@ -105,7 +105,7 @@ def test_estimate(flow_type,fps,arrow_density):
     for number in range(0,number_total):
         input_data, label_data = test_dataset[number]
         runInference(unliteflownet=unliteflownet, input_data=input_data,label_data=label_data,error_arr=error_arr,
-                    arrow_density=arrow_density, number=number,resize=True,save_to_disk=True, show=False)
+                    arrow_density=arrow_density, number=number,resize=False,save_to_disk=True, show=False)
         bar.next()
     bar.finish()
 
