@@ -20,8 +20,6 @@ def initializeNN():
 def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow_density=8, resize=False, save_to_disk=False, show=True):
     h_origin, w_origin = input_data.shape[-2], input_data.shape[-1]
     if resize:
-        print(h_origin)
-        print(w_origin)
         input_data = F.interpolate(input_data.view(-1, 2, h_origin, w_origin),
                                    (256,256),
                                    mode='bilinear',

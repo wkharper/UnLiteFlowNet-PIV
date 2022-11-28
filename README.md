@@ -59,6 +59,12 @@ Start the container: `sudo docker run --privileged --cpus 8 --gpus all -e DISPLA
 
 Ensure you have the most up to date `nvidia-docker2` package and `nvidia-driver-XXX` packages installed on your PC.
 
+## Create your own datasets from videos
+1. Record video and save as MP4 of PIV setup.
+1. Use `ffmpeg` to generate images and convert to grayscale at full quality. `ffmpeg -i piv-airfoil-2022-11-27_13.10.09 -q:v 1 -vf fps=10 piv-airfoil_%05d.tif` and then `for file in $(ls *.tif); do ffmpeg -i $file -q:v 1 -vf format=gray gray_$file -y;done` from within the `sample_data` directory for the name of the dataset you want to create with saved mp4.
+1. Cleanup original non grayscale data: `rm piv-airfoil*.tif`
+1. Use script to rename files for use in this program
+
 ## Training
 To train from scratch:
 
