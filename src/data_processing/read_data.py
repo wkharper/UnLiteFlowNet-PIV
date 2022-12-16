@@ -25,8 +25,8 @@ def read_all(data_path):
         gt_name_list.sort()
         img1_name_list.sort()
         img2_name_list.sort()
-        assert (len(gt_name_list) == len(img1_name_list))
-        assert (len(img2_name_list) == len(img1_name_list))
+        #assert (len(gt_name_list) == len(img1_name_list))
+        #assert (len(img2_name_list) == len(img1_name_list))
 
         # Serialize data into file:
         json.dump(img1_name_list, open(data_path + "/img1_name_list.json",

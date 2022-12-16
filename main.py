@@ -20,24 +20,24 @@ def test_train():
     flow_img1_name_list, flow_img2_name_list, flow_gt_name_list, flow_dir = read_by_type(
         data_path)
 
-    img1_len = [len(f_dir) for f_dir in flow_img1_name_list]
-    img2_len = [len(f_dir) for f_dir in flow_img2_name_list]
-    gt_len = [len(f_dir) for f_dir in flow_gt_name_list]
+    #img1_len = [len(f_dir) for f_dir in flow_img1_name_list]
+    #img2_len = [len(f_dir) for f_dir in flow_img2_name_list]
+    #gt_len = [len(f_dir) for f_dir in flow_gt_name_list]
 
-    for img1_num, img2_num in zip(img1_len, img2_len):
-        assert img1_num == img2_num
-    for img1_num, gt_num in zip(img1_len, gt_len):
-        assert img1_num == gt_num
+    #for img1_num, img2_num in zip(img1_len, img2_len):
+    #    assert img1_num == img2_num
+    #for img1_num, gt_num in zip(img1_len, gt_len):
+    #    assert img1_num == gt_num
 
     train_dataset, validate_dataset, test_dataset = construct_dataset(
         img1_name_list, img2_name_list, gt_name_list)
 
     # Set hyperparameters
     lr = 1e-4
-    batch_size = 8
-    test_batch_size = 8
-    n_epochs = 100
-    new_train = True
+    batch_size = 16
+    test_batch_size = 16
+    n_epochs = 1000
+    new_train = False
 
     # Load the network model
     model = Network().to(device)
@@ -77,7 +77,7 @@ def test_train():
     return model_trained
 
 
-def test_estimate(flow_type,fps):
+def test_estimate(flow_type,fps,arrow_density):
     flow_img1_name_list, flow_img2_name_list, flow_gt_name_list, flow_dir = read_by_type(
         data_path)
     assert len(flow_dir) == len(flow_img1_name_list)
@@ -101,11 +101,23 @@ def test_estimate(flow_type,fps):
     number_total = len(test_dataset)
     bar = Bar('Processing', max=number_total)
     unliteflownet = initializeNN()
+    error_arr = []
     for number in range(0,number_total):
         input_data, label_data = test_dataset[number]
-        runInference(unliteflownet=unliteflownet, input_data=input_data,label_data=label_data,number=number,resize=True,save_to_disk=True, show=False)
+        runInference(unliteflownet=unliteflownet, input_data=input_data,label_data=label_data,error_arr=error_arr,
+                    arrow_density=arrow_density, number=number,resize=False,save_to_disk=True, show=False)
         bar.next()
     bar.finish()
+
+    # Calculate Total Mean Error
+    mean_error = np.array(error_arr).mean()
+    median_error = np.median(np.array(error_arr))
+    std_error = np.std(np.array(error_arr))
+    print("Mean Error of dataset = " + str(mean_error) + " px")
+    print("Median Error of dataset = " + str(median_error) + " px")
+    print("Standard Error of dataset = " + str(std_error) + " px")
+    np.savetxt("./output/stats.txt",[mean_error,median_error,std_error])
+
     print("Done")
 
     # Create Video
@@ -129,12 +141,14 @@ if __name__ == "__main__":
     parser.add_argument('--test', action='store_true', help='train the model')
     parser.add_argument('--flow' , help='train the model')
     parser.add_argument('--fps' , help='train the model')
+    parser.add_argument('--arrow' , help='train the model')
 
     args = parser.parse_args()
     isTrain = args.train
     isTest = args.test
     flow_type = args.flow
     fps = args.fps
+    arrow = args.arrow
 
     if isTrain:
         test_train()
@@ -144,5 +158,11 @@ if __name__ == "__main__":
             print("Using default FPS of " + str(fps))
         else:
             print("User selected FPS of " + str(fps))
+
+        if arrow is None:
+            arrow = 8 # Default
+            print("Using default arrow density of " + str(arrow))
+        else:
+            print("User selected arrow density of " + str(arrow))
         
-        test_estimate(flow_type=flow_type,fps=fps)
+        test_estimate(flow_type=flow_type,fps=fps,arrow_density=int(arrow))

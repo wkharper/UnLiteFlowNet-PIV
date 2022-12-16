@@ -1,0 +1,1 @@
+{"epoch": 59, "dataset size": 7897, "train EPE": 0.14377415330029295, "validation EPE": 0.14054918659167845, "learning rate": 0.0001, "time used(seconds)": 75, "test EPE": 0.1628904215953289}

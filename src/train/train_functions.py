@@ -6,7 +6,6 @@ from src.model.utils import realEPE
 from torch.utils.data import DataLoader
 from livelossplot import PlotLosses
 import GPUtil
-import time
 import datetime
 from src.model.models import estimate, device
 
@@ -33,7 +32,7 @@ def train(model, optimizer, criterion, data_loader):
     iter_num = 0
     total_time = 0
     for x, y in data_loader:
-        start = time.clock()
+        start = datetime.datetime.now().second
         x1 = x[:, 0, ...].view(-1, 1, 256, 256)
         x2 = x[:, 1, ...].view(-1, 1, 256, 256)
         y = y.view(-1, 2, 256, 256)
@@ -52,7 +51,7 @@ def train(model, optimizer, criterion, data_loader):
         optimizer.step()
 
         ##-----------------print info-----------------------
-        end = time.clock()
+        end = datetime.datetime.now().second
         time_used = end - start
         total_time += time_used
         iter_num += 1
@@ -112,24 +111,24 @@ def train_model(model,
     train_loader = DataLoader(train_dataset,
                               batch_size=batch_size,
                               shuffle=True,
-                              num_workers=4,
-                              pin_memory=True)
+                              num_workers=0,
+                              pin_memory=False)
     validation_loader = DataLoader(validate_dataset,
                                    batch_size=test_batch_size,
                                    shuffle=False,
-                                   num_workers=4,
-                                   pin_memory=True)
+                                   num_workers=0,
+                                   pin_memory=False)
     test_loader = DataLoader(test_dataset,
                              batch_size=test_batch_size,
                              shuffle=False,
-                             num_workers=4,
-                             pin_memory=True)
+                             num_workers=0,
+                             pin_memory=False)
 
     liveloss = PlotLosses()
     para_dict = {}
     total_time = 0
     for epoch in range(epoch_trained, n_epochs):
-        start_time = time.clock()
+        start_time = datetime.datetime.now().second 
         print("Total epoch %d" % n_epochs)
         print("Epoch %d starts! " % epoch)
         print("Memory allocated: ",
@@ -143,13 +142,13 @@ def train_model(model,
         validation_loss_epe = validate(model, criterion_validate,
                                        validation_loader)
 
-        end_time = time.clock()
+        end_time = datetime.datetime.now().second 
 
         logs['' + 'multiscale loss'] = train_loss
         logs['' + 'EPE loss'] = train_loss_epe
         logs['val_' + 'EPE loss'] = validation_loss_epe
         liveloss.update(logs)
-        liveloss.draw()
+        #liveloss.draw()
 
         total_time += end_time - start_time
 
@@ -200,9 +199,8 @@ def train_model(model,
 
 
 def save_model(model, optimizer, train_loss, para_dict, save_name):
-    ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y_%m_%d_%H_%M_%S')
-    model_save_name = save_name + st + '.pt'
+    ts = datetime.datetime.now()
+    model_save_name = save_name + str(ts) + '.pt'
     PATH = F"./{model_save_name}"
     epoch = para_dict['epoch']
     torch.save(
@@ -214,4 +212,4 @@ def save_model(model, optimizer, train_loss, para_dict, save_name):
         }, PATH)
 
     # Serialize data into file:
-    json.dump(para_dict, open("./" + save_name + st + '.json', 'w'))
+    json.dump(para_dict, open("./" + save_name + str(ts) + ".json", 'w'))

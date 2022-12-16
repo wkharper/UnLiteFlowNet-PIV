@@ -59,6 +59,12 @@ Start the container: `sudo docker run --privileged --cpus 8 --gpus all -e DISPLA
 
 Ensure you have the most up to date `nvidia-docker2` package and `nvidia-driver-XXX` packages installed on your PC.
 
+## Create your own datasets from videos
+1. Record video and save as MP4 of PIV setup.
+1. Use `ffmpeg` to generate images and convert to grayscale at full quality. `ffmpeg -i piv-airfoil-2022-11-27_13.10.09 -q:v 1 -vf fps=10 piv-airfoil_%05d.tif` and then `for file in $(ls *.tif); do ffmpeg -i $file -q:v 1 -vf format=gray gray_$file -y;done` from within the `sample_data` directory for the name of the dataset you want to create with saved mp4.
+1. Cleanup original non grayscale data: `rm piv-airfoil*.tif`
+1. Use script to rename files for use in this program
+
 ## Training
 To train from scratch:
 
@@ -80,14 +86,26 @@ The data samples for test use are in the folder ```sample_data```. To access ful
 
 Test and visualize the sample data results with the pretrained model using:
 
-```python main.py --test --flow *name_of_flow* --fps *desired_fps_of_video*```
+```python main.py --test --flow *name_of_flow* --fps *desired_fps_of_video* --arrow *desired_arrow_density*```
 
 Where `name_of_flow` is the name of the flow folders in the `sample_data` directory.
+
+Note that --arrow should be set between `1` (1 on arrow for every pixel) and `256` (1 arrow for every 256 pixels). Setting lower values results in longer processing times, but greater fidelity of flow field arrows visualization. Typical values are `4` to `32`.
 
 The current implementation saves the output ground truth (if available) and UnLiteFlowNet-PIV output into the `output` directory. This directory contains an animated gif `movie.gif` that contains the flow field visualization.
 
 It is recommended to clear your workspace every time you run the code by using `./clean.sh`.
 
+## Output file formats
+1. `uv_gt_XXXX.txt` consists of the ground truth velocity pixel gradients with each line representing a row of pairs of (u,v) values. Each pair of data is considered 1 column entry.
+
+1. `uv_XXXX.txt` consists of the estimated velocity pixel gradients with each line representing a row of pairs of (u,v) values. Each pair of data is considered 1 column entry.
+
+1. `stats.txt` consists of the output statistics from the dataset including mean, median, and standard error in that order.
+
+1. `movie.gif` conists of the output animation.
+
+1. `frame_XXXX.png` consists of the flow field estimates from each the `XXXX` sequence of images.
 
 ## Citation
 
