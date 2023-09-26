@@ -127,12 +127,20 @@ def test_estimate(flow_type,fps,arrow_density):
     if isVideo:
         print("Collecting Image Flows...")
         images = []
-        for f in  sorted(glob.iglob(f'{result_path}/*.png')):
+        for f in  sorted(glob.iglob(f'{result_path}/frame*.png')):
             images.append(imageio.imread(f))
 
         print("Saving Video with " + str(len(images)) + " images...This may take a while. Please wait.")
         imageio.mimsave(result_path + '/movie.gif', images, format='GIF', duration=1000/int(fps))
 
+        print("Collecting Raw Image Flows")
+        raw_images = []
+
+        for f in  sorted(glob.iglob(f'{result_path}/raw_frame*.png')):
+            raw_images.append(imageio.imread(f))
+
+        print("Saving Raw Video with " + str(len(raw_images)) + " images...This may take a while. Please wait.")
+        imageio.mimsave(result_path + '/raw_movie.gif', raw_images, format='GIF', duration=1000/int(fps))
 
 
 if __name__ == "__main__":

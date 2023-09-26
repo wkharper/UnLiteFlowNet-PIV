@@ -1,7 +1,7 @@
 from os import listdir, rename
 from os.path import isfile, join
 
-data_path = "./sample_data/cylinder_hd/"
+data_path = "./sample_data/f1_car/"
 
 dataset = [f for f in listdir(data_path) if isfile(join(data_path,f))]
 dataset.sort()

@@ -94,6 +94,8 @@ Note that --arrow should be set between `1` (1 on arrow for every pixel) and `25
 
 The current implementation saves the output ground truth (if available) and UnLiteFlowNet-PIV output into the `output` directory. This directory contains an animated gif `movie.gif` that contains the flow field visualization.
 
+Post processing can be performed to generate a filtered output:  `filtered_movie.gif` by running `python3 post_process.py` and verifying the results in the `output` folder.
+
 It is recommended to clear your workspace every time you run the code by using `./clean.sh`.
 
 ## Output file formats
@@ -105,7 +107,13 @@ It is recommended to clear your workspace every time you run the code by using `
 
 1. `movie.gif` conists of the output animation.
 
+1. `raw_movie.gif` consists of the raw network ouptut animation, not in any subplots
+
+1. `filtered_movie.gif` the post processed and filtered network output animation
+
 1. `frame_XXXX.png` consists of the flow field estimates from each the `XXXX` sequence of images.
+
+1. `raw_frame_XXXX.png` consists of the flow field estimates from each the `XXXX` neural network images
 
 ## Citation
 
