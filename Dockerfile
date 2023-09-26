@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.2.0-devel-ubuntu20.04 as base
+FROM nvidia/cuda:11.2.2-devel-ubuntu20.04 as base
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/London
 RUN apt-get update && apt-get install -y \
