@@ -16,4 +16,4 @@ RUN pip3 install imageio
 RUN pip3 install progress
 RUN pip3 install IPython
 RUN pip3 install opencv-python
-RUN apt-get install libsm6 -y
+RUN apt-get install libsm6 ffmpeg -y

@@ -33,6 +33,7 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
 
     # Visualization
     fig, axarr = plt.subplots(1, 2, figsize=(16,16))
+    fig_raw, ax_raw = plt.subplots()
 
     # Estimate
     b, _, h, w = input_data.size()
@@ -52,6 +53,8 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
     # Draw velocity magnitude
     axarr[1].imshow(fz.convert_from_flow(color_data_pre))
     axarr[1].imshow(x1.numpy()[0,0,...],alpha=0.15)
+    ax_raw.imshow(fz.convert_from_flow(color_data_pre))
+    ax_raw.imshow(x1.numpy()[0,0,...],alpha=0.15)
     # Control arrow density
     X = np.arange(0, h, arrow_density)
     Y = np.arange(0, w, arrow_density)
@@ -61,6 +64,8 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
     # Draw velocity direction
     axarr[1].quiver(yy.T, xx.T, U, -V)
     axarr[1].axis('off')
+    ax_raw.quiver(yy.T, xx.T, U, -V)
+    ax_raw.axis('off')
     color_data_pre_unliteflownet = color_data_pre
 
     # ---------------Label data------------------
@@ -97,6 +102,8 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
 
     if save_to_disk:
         fig.savefig('./output/frame_' + str(number).zfill(4) + '.png', bbox_inches='tight')
+        fig_raw.savefig('./output/raw_frame_' + str(number).zfill(4) + '.png', bbox_inches='tight')
+        plt.close()
         plt.close()
         reshaped_ffn = flow_field_norm.reshape(flow_field_norm.shape[0], -1)
         np.savetxt("./output/uv_" + str(number).zfill(4) + ".txt", reshaped_ffn, '%.4f')
