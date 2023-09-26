@@ -3,6 +3,7 @@
 ##    - Histograms are caculated after converting images into HSV (Hue-Saturation-Value) space. Bins are created in HSV space for simplicity compared to RGB
 ## 2. Does not meet the dynmaically calculated std deviation threshold multiplied by a sigma multiplier.
 ##    - 3 is selected as the sigma multiplier because an assumption of the normal guassian noise distribution of 3 sigma is used
+## Optionally bilateral filtering and histogram equalization can be enabled for smoother video output. It is enabled by default
 
 
 import cv2
@@ -25,6 +26,7 @@ s_bins = 60
 h_ranges = [0, 180]
 s_ranges = [0, 256]
 channels = [0, 1]
+enable_bilateral_and_histogram = True
 
 # Read output gif from UnLiteFlowNetPIV
 cap = cv2.VideoCapture("output/raw_movie.gif")
@@ -121,8 +123,15 @@ while True:
         # Show Raw Image
         cv2.imshow('frame', frame)
 
-        # Collect Filtered Images 
+        # Collect Filtered Images and apply histogram equalization + bilateral filtering if selected
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        if enable_bilateral_and_histogram is True:
+            hsv_frame = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2HSV)
+            hsv_frame[:, :, 2] = cv2.equalizeHist(hsv_frame[:,:,2])
+            rgb_frame = cv2.cvtColor(hsv_frame, cv2.COLOR_HSV2RGB)
+            rgb_frame = cv2.bilateralFilter(rgb_frame, 9, 75, 75)
+     
         filtered_images.append(rgb_frame)
 
         # Wait for keypress
