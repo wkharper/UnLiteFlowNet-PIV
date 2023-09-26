@@ -131,7 +131,7 @@ def test_estimate(flow_type,fps,arrow_density):
             images.append(imageio.imread(f))
 
         print("Saving Video with " + str(len(images)) + " images...This may take a while. Please wait.")
-        imageio.mimsave(result_path + '/movie.gif', images, format='GIF', fps=fps)
+        imageio.mimsave(result_path + '/movie.gif', images, format='GIF', duration=1000/int(fps))
 
 
 
