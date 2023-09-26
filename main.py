@@ -134,7 +134,6 @@ def test_estimate(flow_type,fps,arrow_density):
         imageio.mimsave(result_path + '/movie.gif', images, format='GIF', duration=1000/int(fps))
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train and test')
     parser.add_argument('--train', action='store_true', help='train the model')
