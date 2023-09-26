@@ -86,7 +86,7 @@ The data samples for test use are in the folder ```sample_data```. To access ful
 
 Test and visualize the sample data results with the pretrained model using:
 
-```python main.py --test --flow *name_of_flow* --fps *desired_fps_of_video* --arrow *desired_arrow_density*```
+```python3 main.py --test --flow *name_of_flow* --fps *desired_fps_of_video* --arrow *desired_arrow_density*```
 
 Where `name_of_flow` is the name of the flow folders in the `sample_data` directory.
 
