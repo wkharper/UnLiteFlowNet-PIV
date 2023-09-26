@@ -17,6 +17,9 @@ filtered_images = []
 max_val_array = np.empty(0)
 is_init = False
 fps = 15
+histOnlyCount = 0
+templateOnlyCount = 0
+bothCount = 0
 
 # Algorithm Parameters
 histogram_similarity_threshold = 0.95
@@ -83,10 +86,17 @@ while True:
     diff = abs(max_val - mean_val)
 
     # Print current status
-    print(str(('Template_Matching_Value', 'Total Mean', 'Frame std_dev', 'Total std_dev', 'histogram similarity')) + " : " + str((max_val, mean_val, diff, std_dev, compare_val)))
+    print(str(('Template_Matching_Value', 'Total Mean', 'Frame std_dev', 'Total std_dev', 'histogram similarity', 'hstOnlyCount', 'templateOnlyCount', 'bothCount')) + " : " + str((max_val, mean_val, diff, std_dev, compare_val, histOnlyCount, templateOnlyCount, bothCount)))
 
     # Check if ANY of the filter criteria is met
     if (diff > sigma_multiplier*std_dev) or (compare_val < histogram_similarity_threshold): 
+        if (diff > sigma_multiplier*std_dev) and (compare_val < histogram_similarity_threshold): 
+            bothCount += 1
+        elif (compare_val < histogram_similarity_threshold):
+            histOnlyCount += 1
+        else:
+            templateOnlyCount += 1
+        
         # If filter criteria is not met, and the filter is not initialized, try a new first frame.
         if is_init is False:
             print("Re-init, first frame was bad")
@@ -140,7 +150,7 @@ while True:
 
 
 # Write GIF
-print("Writing output filtered gif to output/filtered_movie.guf")
+print("Writing output filtered gif to output/filtered_movie.gif")
 imageio.mimsave('output/filtered_movie.gif', filtered_images, format='GIF', duration=1000/int(fps))
 
 # Clean-up resources
