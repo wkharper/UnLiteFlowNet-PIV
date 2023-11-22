@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from src.model.models import *
 from src.data_processing.read_data import *
 from src.train.train_functions import *
+import cv2
 
 
 def initializeNN():
@@ -50,7 +51,27 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
     u = u.numpy()
     v = v.numpy()
     flow_field_norm = np.stack((u,v),axis=2)
-    # Draw velocity magnitude
+
+    # Draw velocity magnitude with custom mapping function 
+    u_max = np.max(u)
+    u_min = np.min(u)
+    v_max = np.max(v)
+    v_min = np.min(v)
+    intensity_frame = flow_field_norm 
+    intensity_num = np.subtract(
+            intensity_frame, np.array([u_min, v_min])
+    )
+    intensity_den = np.subtract(
+            np.array([u_max, v_max]), np.array([u_min, v_min])
+    )
+    cv_image = 255 * (
+            np.linalg.norm(intensity_num, axis=2)
+            / np.linalg.norm(intensity_den)
+    )
+    cv_image = cv2.cvtColor(np.uint8(cv_image), cv2.COLOR_GRAY2BGR)
+    cv_image = cv2.applyColorMap(cv_image, cv2.COLORMAP_JET)
+
+    # Flowiz Calculation of Velocity Magniture Image
     axarr[1].imshow(fz.convert_from_flow(color_data_pre))
     axarr[1].imshow(x1.numpy()[0,0,...],alpha=0.15)
     ax_raw.imshow(fz.convert_from_flow(color_data_pre))
@@ -103,6 +124,7 @@ def runInference(unliteflownet, input_data, label_data, number, error_arr, arrow
     if save_to_disk:
         fig.savefig('./output/frame_' + str(number).zfill(4) + '.png', bbox_inches='tight')
         fig_raw.savefig('./output/raw_frame_' + str(number).zfill(4) + '.png', bbox_inches='tight')
+        cv2.imwrite('./output/cv_frame_' + str(number).zfill(4) + '.png', cv_image)
         plt.close()
         plt.close()
         reshaped_ffn = flow_field_norm.reshape(flow_field_norm.shape[0], -1)
